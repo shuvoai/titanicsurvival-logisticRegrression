@@ -1,0 +1,54 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+
+passengers=pd.read_csv("passengers.csv")
+passengers = pd.DataFrame(passengers)
+
+passengers['Sex']=passengers['Sex'].map({'male':0 ,'female':1})
+
+
+print(passengers['Age'].values)
+passengers['Age'].fillna(inplace=True,value=passengers['Age'].mean())
+
+passengers['FirstClass'] = passengers['Pclass'].apply(lambda x: 1 if x==1 else 0)
+
+
+
+passengers['SecondClass'] = passengers['Pclass'].apply(lambda x: 1 if x==2 else 0)
+print(passengers.head(10))
+
+features = passengers[['Sex','Age','FirstClass','SecondClass']]
+survival = passengers['Survived']
+
+X_train,X_test,y_train,y_test = train_test_split(features,survival,test_size=.2)
+scaler = StandardScaler()
+train_features = scaler.fit_transform(X_train)
+test_features = scaler.transform(X_test)
+
+
+
+
+ml = LogisticRegression()
+ml.fit(X_train,y_train)
+
+score = ml.score(X_test,y_test)
+print(score)
+
+print(ml.coef_)
+print(list(zip(['Sex','Age','FirstClass','SecondClass'],ml.coef_[0])))
+
+Jack = np.array([0.0,20.0,0.0,0.0])
+Rose = np.array([1.0,17.0,1.0,0.0])
+You = np.array([0.0,26.0,0.0,0.0])
+
+
+sample_passengers = np.array([Jack,Rose,You])
+
+sample_passengers = scaler.transform(sample_passengers)
+
+print(ml.predict(sample_passengers))
